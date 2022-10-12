@@ -1,5 +1,6 @@
 #FROM ubuntu:18.10
-FROM ubuntu:20.04
+#FROM ubuntu:20.04
+FROM clouddood/hadoop2.7.3:v1 
 
 ARG ZEPPELIN_VERSION="0.10.1"
 ARG SPARK_VERSION="2.4.8"
@@ -17,20 +18,129 @@ RUN apt-get -y update &&\
     apt-get install -y python3-pip &&\
     apt-get install -y wget &&\
     apt-get install -y unzip &&\
+    apt-get install -y ssh &&\
+    apt-get install -y pdsh &&\
     apt-get install -y net-tools &&\
     apt-get -y install vim
+
+##########################################
+# Hadoop
+##########################################
+# Setup Oracle Java
+##  RUN \
+##    pip install gdown 
+##  
+##  RUN \
+##    cd /usr/lib/jvm && \
+##  # curl -s http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-i586.tar.gz
+##    gdown https://drive.google.com/uc?id=16BCBMKto7XDt_fon_Pj2YD4iDfd_uBkR && \
+##    tar -xf jdk-8u341-linux-x64.tar.gz 
+##  
+##  #ENV JAVA_HOME=/usr/lib/jvm/jdk1.8.0_341
+##  
+##  RUN curl -s https://archive.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz | tar -xz -C /usr/local/
+##  RUN cd /usr/local && ln -s ./hadoop-2.7.7 hadoop
+##  
+##  ENV HADOOP_PREFIX /usr/local/hadoop
+##  ENV HADOOP_COMMON_HOME /usr/local/hadoop
+##  ENV HADOOP_HDFS_HOME /usr/local/hadoop
+##  ENV HADOOP_MAPRED_HOME /usr/local/hadoop
+##  ENV HADOOP_YARN_HOME /usr/local/hadoop
+##  ENV HADOOP_CONF_DIR /usr/local/hadoop/etc/hadoop
+##  ENV YARN_CONF_DIR $HADOOP_PREFIX/etc/hadoop
+##  
+##  #RUN sed -i '/^export JAVA_HOME/ s:.*:export JAVA_HOME=/usr/java/default\nexport HADOOP_PREFIX=/usr/local/hadoop\nexport HADOOP_HOME=/usr/local/hadoop\n:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+##  ENV JAVA_HOME=/usr/lib/jvm/jdk1.8.0_341
+##  ENV HADOOP_HOME=/usr/local/hadoop
+##  
+##  RUN mkdir /var/log/hadoop
+##  ENV HADOOP_LOG_DIR=/var/log/hadoop
+##  
+##  #RUN sed -i '/^export HADOOP_CONF_DIR/ s:.*:export HADOOP_CONF_DIR=/usr/local/hadoop/etc/hadoop/:' $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+##  #RUN . $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+##  
+##  #RUN mkdir $HADOOP_PREFIX/input
+##  RUN mkdir /usr/local/hadoop/input
+##  RUN cp $HADOOP_PREFIX/etc/hadoop/*.xml $HADOOP_PREFIX/input
+##  
+##  # pseudo distributed
+##  #ADD hadoop_files/core-site.xml.template $HADOOP_PREFIX/etc/hadoop/core-site.xml.template
+##  #RUN sed s/HOSTNAME/localhost/ /usr/local/hadoop/etc/hadoop/core-site.xml.template > /usr/local/hadoop/etc/hadoop/core-site.xml
+##  ADD hadoop_files/core-site.xml $HADOOP_PREFIX/etc/hadoop/core-site.xml
+##  ADD hadoop_files/hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
+##  
+##  ADD hadoop_files/mapred-site.xml $HADOOP_PREFIX/etc/hadoop/mapred-site.xml
+##  ADD hadoop_files/yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
+##  
+##  RUN $HADOOP_PREFIX/bin/hdfs namenode -format > /tmp/hdfs_format.log
+##  
+##  # fixing the libhadoop.so like a boss
+##  #RUN rm -rf /usr/local/hadoop/lib/native
+##  #RUN mv /tmp/native /usr/local/hadoop/lib
+##  
+##  # ssh configuration
+##  ADD hadoop_files/ssh_config /root/.ssh/config
+##  RUN chmod 600 /root/.ssh/config
+##  RUN chown root:root /root/.ssh/config
+##  
+##  # # installing supervisord
+##  # RUN yum install -y python-setuptools
+##  # RUN easy_install pip
+##  # RUN curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -o - | python
+##  # RUN pip install supervisor
+##  #
+##  # ADD supervisord.conf /etc/supervisord.conf
+##  
+##  ADD hadoop_files/bootstrap.sh /etc/bootstrap.sh
+##  RUN chown root:root /etc/bootstrap.sh
+##  RUN chmod 700 /etc/bootstrap.sh
+##  
+##  ENV BOOTSTRAP /etc/bootstrap.sh
+##  
+##  # workingaround docker.io build error
+##  RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
+##  RUN chmod +x /usr/local/hadoop/etc/hadoop/*-env.sh
+##  RUN ls -la /usr/local/hadoop/etc/hadoop/*-env.sh
+##  
+##  # fix the 254 error code
+##  #RUN sed  -i "/^[^#]*UsePAM/ s/.*/#&/"  /etc/ssh/sshd_config
+##  #RUN echo "UsePAM no" >> /etc/ssh/sshd_config
+##  #RUN echo "Port 2122" >> /etc/ssh/sshd_config
+##  
+##  #RUN service sshd start && $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root
+##  #RUN $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -mkdir -p /user/root
+##  #RUN service sshd start && $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
+##  #RUN $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh && $HADOOP_PREFIX/sbin/start-dfs.sh && $HADOOP_PREFIX/bin/hdfs dfs -put $HADOOP_PREFIX/etc/hadoop/ input
+##  
+##  CMD ["/etc/bootstrap.sh", "-d"]
+
+# Hdfs ports
+EXPOSE 50010 50020 50070 50075 50090 8020 9000
+# Mapred ports
+EXPOSE 10020 19888
+#Yarn ports
+EXPOSE 8030 8031 8032 8033 8040 8042 8088
+#Other ports
+EXPOSE 49707 2122
 
 
 ##########################################
 # SPARK
 ##########################################
 ARG SPARK_ARCHIVE=https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz
+#ARG SPARK_ARCHIVE=https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz
 RUN mkdir /usr/local/spark &&\
     mkdir /tmp/spark-events    # log-events for spark history server
 ENV SPARK_HOME /usr/local/spark
 
 ENV PATH $PATH:${SPARK_HOME}/bin
+#RUN curl -s ${SPARK_ARCHIVE} | tar -xz -C  /usr/local/spark --strip-components=1
 RUN curl -s ${SPARK_ARCHIVE} | tar -xz -C  /usr/local/spark --strip-components=1
+
+RUN \
+  cd /tmp && \
+  wget https://archive.apache.org/dist/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz  && \
+  tar -xf spark-2.4.8-bin-hadoop2.7.tgz
 
 RUN echo "spark.eventlog.enabled  true" >> ${SPARK_HOME}/conf/spark-defaults.conf
 RUN echo "SPARK_LOCAL_IP=0.0.0.0" >> ${SPARK_HOME}/conf/spark-env.sh
@@ -40,8 +150,11 @@ RUN echo "SPARK_LOCAL_IP=0.0.0.0" >> ${SPARK_HOME}/conf/spark-env.sh
 ##########################################
 # Zeppelin
 ##########################################
-RUN mkdir /usr/zeppelin &&\
-    curl -s https://dlcdn.apache.org/zeppelin/zeppelin-${ZEPPELIN_VERSION}/zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz | tar -xz -C /usr/zeppelin
+RUN mkdir /usr/zeppelin && \
+    cd /usr/zeppelin && \
+#   curl -s https://dlcdn.apache.org/zeppelin/zeppelin-${ZEPPELIN_VERSION}/zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz && \
+    wget https://dlcdn.apache.org/zeppelin/zeppelin-${ZEPPELIN_VERSION}/zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz && \
+    tar -xf zeppelin-${ZEPPELIN_VERSION}-bin-all.tgz
 
 RUN echo '{ "allow_root": true }' > /root/.bowerrc
 
@@ -75,6 +188,7 @@ ENTRYPOINT  /usr/local/spark/sbin/start-history-server.sh; $ZEPPELIN_HOME/bin/ze
 ##########################################
 # H2O.ai & Sparkling Water
 ##########################################
+RUN apt install python3-pip
 
 # Fetch h2o latest_stable
 RUN \
@@ -85,7 +199,7 @@ RUN \
   cd /opt && \
   cd `find . -name 'h2o.jar' | sed 's/.\///;s/\/h2o.jar//g'` && \
   cp h2o.jar /opt && \
-  /usr/bin/pip install `find . -name "*.whl"` && \
+  /usr/bin/pip3 install `find . -name "*.whl"` && \
   printf '!/bin/bash\ncd /home/h2o\n./start-h2o-docker.sh\n' > /start-h2o-docker.sh && \
   chmod +x /start-h2o-docker.sh
 
