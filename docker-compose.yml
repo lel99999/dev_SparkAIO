@@ -1,0 +1,95 @@
+version: "3.3"
+services:
+  h2o:
+    image: spark-base:2.4.8
+    command: java -jar /opt/h2o.jar
+    ports:
+      - "54321:54321"
+      - "54322:54322"
+      - "54325:54325"
+      - "4040:4040"
+    volumes:
+      - ./h2o_data:/mnt/h2o_DataDir
+  zeppelin:
+    image: spark-base:2.4.8
+#   build:
+#     dockerfile: Dockerfile.v2_basespark_alpine
+    command: /opt/zeppelin/zeppelin-0.10.1-bin-all/bin/zeppelin.sh
+    ports:
+      - "18989:8989"
+    volumes:
+      - ./zeppelin_data:/mnt/zeppelin_DataDir
+  spark-master:
+    image: spark-base:2.4.8
+#   build:
+#     dockerfile: Dockerfile.v2_basespark_alpine
+    ports:
+      - "9090:8080"
+      - "7077:7077"
+#   networks:
+#     - default
+    volumes:
+      - ./spark-apps:/opt/spark-apps
+      - ./spark-data:/opt/spark-data
+    environment:
+      - SPARK_LOCAL_IP=spark-master
+      - SPARK_WORKLOAD=master
+  spark-worker-a:
+    image: spark-base:2.4.8
+#   build:
+#     dockerfile: Dockerfile.v2_basespark_alpine
+    ports:
+      - "9091:8080"
+      - "7000:7000"
+#   networks:
+#     - default
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker-a
+    volumes:
+      - ./spark-apps:/opt/spark-apps
+      - ./spark-data:/opt/spark-data
+  spark-worker-b:
+    image: spark-base:2.4.8
+#   build:
+#     dockerfile: Dockerfile.v2_basespark_alpine
+    ports:
+      - "9092:8080"
+      - "7001:7000"
+#   networks:
+#     - default
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=1G
+      - SPARK_EXECUTOR_MEMORY=1G
+      - SPARK_WORKLOAD=worker
+      - SPARK_LOCAL_IP=spark-worker-b
+    volumes:
+      - ./spark-apps:/opt/spark-apps
+      - ./spark-data:/opt/spark-data
+  demo-database:
+    image: postgres:11.7-alpine
+    ports: 
+      - "5432:5432"
+    environment: 
+      - POSTGRES_PASSWORD=abc123
+
+##   h2o:
+##     image: spark-base-alpine-zeppelin:3.1.3
+##     command: java -jar /opt/h2o.jar
+##     ports:
+##       - "54321:54321"
+##       - "54322:54322"
+##     volumes:
+##        - ./h2o_data:/mnt/h2o_DataDir
