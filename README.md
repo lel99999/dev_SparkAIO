@@ -52,3 +52,8 @@ AIO Spark Build
 #### Sparkling Water Info:
 - Documentation
   [https://s3.amazonaws.com/h2o-release/sparkling-water/spark-2.4/3.38.0.1-1-2.4/index.html](https://s3.amazonaws.com/h2o-release/sparkling-water/spark-2.4/3.38.0.1-1-2.4/index.html) <br/>
+
+- Build Examples with Gradle:
+  ```
+  $gradle
+  ```
