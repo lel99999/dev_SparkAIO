@@ -57,3 +57,6 @@ AIO Spark Build
   ```
   $gradle
   ```
+#### Error(s) Fixes
+- You don't have enough free space in /var/cache/apt/archives/. <br/>
+  `$docker system prune` <br/>
