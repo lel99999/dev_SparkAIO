@@ -55,7 +55,10 @@ AIO Spark Build
 
 - Build Examples with Gradle:
   ```
-  $gradle
+  $cd /tmp
+  $git clone https://github.com/h2oai/sparkling-water.git
+  $cd sparkling-water/examples
+  $gradle assemble
   ```
 #### Error(s) Fixes
 - You don't have enough free space in /var/cache/apt/archives/. <br/>
