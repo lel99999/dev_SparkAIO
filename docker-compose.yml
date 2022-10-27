@@ -9,6 +9,7 @@ services:
       - "54322:54322"
       - "54325:54325"
       - "4040:4040"
+      - "18080:8080"
     volumes:
       - ./h2o_data:/mnt/h2o_DataDir
   zeppelin:
