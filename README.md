@@ -15,6 +15,10 @@ AIO Spark Build
 - ODBC
 - JDBC
 
+#### Hive/Hive2 Thriftserver
+- Configuration
+  [https://docs.cloudera.com/HDPDocuments/HDP2/HDP-2.6.4/bk_spark-component-guide/content/config-sts.html#:~:text=Spark%20Thrift%20server%20is%20a,is%20a%20variant%20of%20HiveServer2.}(https://docs.cloudera.com/HDPDocuments/HDP2/HDP-2.6.4/bk_spark-component-guide/content/config-sts.html#:~:text=Spark%20Thrift%20server%20is%20a,is%20a%20variant%20of%20HiveServer2.) <br/>
+
 #### Docker AIO with Hadoop, Spark, H2O
 - Build image
   ```
