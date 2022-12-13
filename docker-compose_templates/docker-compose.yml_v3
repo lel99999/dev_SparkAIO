@@ -1,42 +1,34 @@
 version: "3.3"
 services:
   h2o:
-#   image: clouddood/spark-base:2.4.8
-    image: spark-base:2.4.8
+    image: spark-base-alpine-zeppelin:3.1.3
     command: java -jar /opt/h2o.jar
     ports:
       - "54321:54321"
       - "54322:54322"
-      - "54325:54325"
-      - "4040:4040"
-      - "18080:8080"
     volumes:
-      - ./h2o_data:/mnt/h2o_DataDir
+       - ./h2o_data:/mnt/h2o_DataDir
   zeppelin:
-#   image: clouddood/spark-base:2.4.8
-    image: spark-base:2.4.8
-    command: /opt/zeppelin/zeppelin-0.10.1-bin-all/bin/zeppelin.sh
+    image: spark-base-alpine-zeppelin:3.1.3
     ports:
       - "18989:8989"
     volumes:
-      - ./zeppelin_data:/mnt/zeppelin_DataDir
+       - ./zeppelin_data:/mnt/zeppelin_DataDir
   spark-master:
-#   image: clouddood/spark-base:2.4.8
-    image: spark-base:2.4.8
+    image: spark-base-alpine:3.1.3
     ports:
       - "9090:8080"
       - "7077:7077"
 #   networks:
 #     - default
     volumes:
-      - ./spark-apps:/opt/spark-apps
-      - ./spark-data:/opt/spark-data
+       - ./spark-apps:/opt/spark-apps
+       - ./spark-data:/opt/spark-data
     environment:
       - SPARK_LOCAL_IP=spark-master
       - SPARK_WORKLOAD=master
   spark-worker-a:
-#   image: clouddood/spark-base:2.4.8
-    image: spark-base:2.4.8
+    image: spark-base-alpine:3.1.3
     ports:
       - "9091:8080"
       - "7000:7000"
@@ -53,11 +45,10 @@ services:
       - SPARK_WORKLOAD=worker
       - SPARK_LOCAL_IP=spark-worker-a
     volumes:
-      - ./spark-apps:/opt/spark-apps
-      - ./spark-data:/opt/spark-data
+       - ./spark-apps:/opt/spark-apps
+       - ./spark-data:/opt/spark-data
   spark-worker-b:
-#   image: clouddood/spark-base:2.4.8
-    image: spark-base:2.4.8
+    image: spark-base-alpine:3.1.3
     ports:
       - "9092:8080"
       - "7001:7000"
@@ -74,8 +65,8 @@ services:
       - SPARK_WORKLOAD=worker
       - SPARK_LOCAL_IP=spark-worker-b
     volumes:
-      - ./spark-apps:/opt/spark-apps
-      - ./spark-data:/opt/spark-data
+        - ./spark-apps:/opt/spark-apps
+        - ./spark-data:/opt/spark-data
   demo-database:
     image: postgres:11.7-alpine
     ports: 
